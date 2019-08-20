@@ -4,6 +4,7 @@
 #include "pch.h"
 #include <Windows.h>
 #include <iostream>
+#include <WinUser.h>
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -25,11 +26,24 @@ int main()
 		CLASS_NAME,
 		L"Sample Window Name",
 		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+		600, 337, 400, 225,
 		NULL,
 		NULL,
 		NULL,
 		NULL);
+
+	HWND hwndButton = CreateWindow(
+		L"BUTTON",  // Predefined class; Unicode assumed 
+		L"OK",      // Button text 
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // Styles 
+		150,         // x position 
+		120,         // y position 
+		100,        // Button width
+		30,        // Button height
+		hwnd,     // Parent window
+		NULL,       // No menu.
+		(HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
+		NULL);      // Pointer not needed.
 
 	if (hwnd != NULL)
 	{
@@ -54,7 +68,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			return 0;
 
 		default:
-			std::cout << '.';
+			POINT cursorPosition;
+			GetCursorPos(&cursorPosition);
+			std::cout << cursorPosition.x << " " << cursorPosition.y << "\n";
 			return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
