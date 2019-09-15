@@ -7,14 +7,19 @@
 #include <iostream>
 #include <Windows.h>
 #include <WinUser.h>
+#include <windowsx.h>
 
 #include <glm/glm.hpp>
 using namespace glm;
 
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-HWND hwnd;
+HWND configWindow;
 GLFWwindow* window;
+
+HWND okButton;
+HWND openglRadioButton;
+HWND directxRadioButton;
 
 void InitializeOpenGL();
 void CreateOpenGLWindow();
@@ -23,7 +28,7 @@ int main()
 {
 	std::cout << "Hello World!\n";
 
-	const wchar_t CLASS_NAME[] = L"Sample Window Class";
+	const wchar_t CLASS_NAME[] = L"Config Window Class";
 
 	WNDCLASS wc = { };
 
@@ -33,47 +38,61 @@ int main()
 
 	RegisterClass(&wc);
 
-	hwnd = CreateWindowEx(0,
-							   CLASS_NAME,
-							   L"Sample Window Name",
-							   WS_OVERLAPPEDWINDOW,
-							   600, 337, 400, 225,
-							   NULL,
-							   NULL,
-							   NULL,
-							   NULL);
+	configWindow = CreateWindowEx(0,
+								  CLASS_NAME,
+								  L"Configs",
+								  WS_OVERLAPPEDWINDOW,
+								  600, 337, 400, 225,
+								  NULL,
+								  NULL,
+								  NULL,
+								  NULL);
 
-	HWND hwndButton = CreateWindowEx(0,
-									 L"BUTTON",
-									 L"OK",
-									 WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-									 150,
-									 120,
-									 100,
-									 30,
-									 hwnd,
-									 (HMENU)1001,
-									 (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
-									 NULL);
+	okButton = CreateWindowEx(0,
+							  L"BUTTON",
+							  L"OK",
+							  WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+							  150,
+							  120,
+							  100,
+							  30,
+							  configWindow,
+							  (HMENU)1001,
+							  (HINSTANCE)GetWindowLongPtr(configWindow, GWLP_HINSTANCE),
+							  NULL);
 
-	HWND hwndCheckbox = CreateWindowEx(0,
+	openglRadioButton = CreateWindowEx(0,
 									   L"BUTTON",
 									   L"OpenGL",
 									   WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
 									   50,
-									   50,
+									   30,
 									   100,
 									   30,
-									   hwnd,
-									   NULL,
-									   //NULL,
-									   (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
+									   configWindow,
+									   (HMENU)1002,
+									   (HINSTANCE)GetWindowLongPtr(configWindow, GWLP_HINSTANCE),
 									   NULL);
 
-	if (hwnd != NULL)
+	directxRadioButton = CreateWindowEx(0,
+										   L"BUTTON",
+										   L"DirectX",
+										   WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
+										   50,
+										   60,
+										   100,
+										   30,
+										   configWindow,
+										   (HMENU)1003,
+										   (HINSTANCE)GetWindowLongPtr(configWindow, GWLP_HINSTANCE),
+										   NULL);
+
+	Button_SetCheck(openglRadioButton, true);
+
+	if (configWindow != NULL)
 	{
 		std::cout << "Show Window\n";
-		ShowWindow(hwnd, SW_SHOWDEFAULT);
+		ShowWindow(configWindow, SW_SHOWDEFAULT);
 	}
 
 	MSG msg = { };
@@ -83,16 +102,12 @@ int main()
 		DispatchMessage(&msg);
 	}
 
-	// Ensure we can capture the escape key being pressed below
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
-	do {
-		// Clear the screen. It's not mentioned before Tutorial 02, but it can cause flickering, so it's there nonetheless.
+	do
+	{
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// Draw nothing, see you in tutorial 2 !
-
-		// Swap buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
@@ -125,6 +140,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 				printf("Button clicked\n");
 				DestroyWindow(hwnd);
+			}
+
+			if (LOWORD(wParam) == 1002)
+			{
+				printf("Radio button clicked\n");
 			}
 			break;
 		}
