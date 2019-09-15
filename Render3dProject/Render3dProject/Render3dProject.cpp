@@ -20,6 +20,7 @@ GLFWwindow* window;
 HWND okButton;
 HWND openglRadioButton;
 HWND directxRadioButton;
+bool isOpenNewWindow;
 
 void InitializeOpenGL();
 void CreateOpenGLWindow();
@@ -67,7 +68,7 @@ int main()
 									   WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
 									   50,
 									   30,
-									   100,
+									   200,
 									   30,
 									   configWindow,
 									   (HMENU)1002,
@@ -76,11 +77,11 @@ int main()
 
 	directxRadioButton = CreateWindowEx(0,
 										   L"BUTTON",
-										   L"DirectX",
+										   L"Unsupported",
 										   WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
 										   50,
 										   60,
-										   100,
+										   200,
 										   30,
 										   configWindow,
 										   (HMENU)1003,
@@ -95,6 +96,8 @@ int main()
 		ShowWindow(configWindow, SW_SHOWDEFAULT);
 	}
 
+	isOpenNewWindow = false;
+
 	MSG msg = { };
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
@@ -102,18 +105,21 @@ int main()
 		DispatchMessage(&msg);
 	}
 
-	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-
-	do
+	if (isOpenNewWindow)
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
+		glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+		do
+		{
+			glClear(GL_COLOR_BUFFER_BIT);
 
-	} // Check if the ESC key was pressed or the window was closed
-	while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
-		   glfwWindowShouldClose(window) == 0);
+			glfwSwapBuffers(window);
+			glfwPollEvents();
+
+		} // Check if the ESC key was pressed or the window was closed
+		while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
+			   glfwWindowShouldClose(window) == 0);
+	}
 }
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -135,16 +141,20 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			if (LOWORD(wParam) == 1001)
 			{
-				InitializeOpenGL();
-				CreateOpenGLWindow();
+				if (Button_GetCheck(openglRadioButton))
+				{
+					InitializeOpenGL();
+					CreateOpenGLWindow();
 
-				printf("Button clicked\n");
-				DestroyWindow(hwnd);
-			}
+					printf("Button clicked\n");
+					DestroyWindow(hwnd);
 
-			if (LOWORD(wParam) == 1002)
-			{
-				printf("Radio button clicked\n");
+					isOpenNewWindow = true;
+				}
+				else
+				{
+					printf("Unsupported\n");
+				}
 			}
 			break;
 		}
